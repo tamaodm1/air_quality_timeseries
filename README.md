@@ -11,13 +11,15 @@ Chuỗi PM2.5 biến động rất mạnh trong toàn bộ giai đoạn nghiên 
 Diễn giải:
 Khi quan sát trong khoảng thời gian ngắn, PM2.5 có thể tăng rất nhanh trong vài giờ hoặc vài ngày, tạo ra các đợt ô nhiễm đột ngột. Các đỉnh PM2.5 có biên độ lớn và xuất hiện không đều, gây khó khăn cho dự báo nếu mô hình phản ứng chậm. Điều này cho thấy dự báo ngắn hạn có vai trò quan trọng trong hệ thống cảnh báo sớm chất lượng không khí.
 
-<img width="554" height="163" alt="image" src="https://github.com/user-attachments/assets/ab4670fb-a766-463e-be4c-2d86773d61fe" />
+<img width="554" height="163" alt="image" src="https://github.com/user-attachments/assets/080935e4-0823-49fc-8ee9-271c8570dfa9" />
+
 
 			          Hình 3. ACF của PM2.5
 Diễn giải:
 Hệ số tự tương quan giảm chậm theo độ trễ, cho thấy PM2.5 có mối liên hệ mạnh với các giá trị trong quá khứ gần. Điều này chứng tỏ chuỗi không phải là nhiễu ngẫu nhiên mà có cấu trúc phụ thuộc theo thời gian rõ ràng. Kết quả này giải thích vì sao các đặc trưng độ trễ có giá trị cao trong các mô hình dự báo.
 
-<img width="553" height="220" alt="image" src="https://github.com/user-attachments/assets/17d54500-9111-4947-9e04-bdf9b117d2f1" />
+<img width="554" height="163" alt="image" src="https://github.com/user-attachments/assets/49401dbd-2e71-47bd-84d0-0c2a5c910088" />
+
 
 						Hình 4. PACF của PM2.5
 Diễn giải:
