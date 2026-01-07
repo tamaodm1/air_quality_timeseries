@@ -40,18 +40,18 @@ ARIMA (1,0,3): sai số cao hơn regression (thể hiện trên Forecast vs Actu
 
 Giải thích :
 
-	Dự báo rất ngắn hạn của PM2.5 bị chi phối mạnh bởi độ trễ gần nhất, đặc biệt là PM2.5_lag1. Regression baseline khai thác trực tiếp các đặc trưng lag (1, 3, 24) và time features nên bám sát biến động ngắn hạn tốt nếu feature engineering đúng. ARIMA có thể hoạt động tốt trong một số trường hợp nhưng phụ thuộc mạnh vào cấu trúc tự tương quan và quyết định sai phân, nên kém linh hoạt hơn cho horizon rất ngắn.
+Dự báo rất ngắn hạn của PM2.5 bị chi phối mạnh bởi độ trễ gần nhất, đặc biệt là PM2.5_lag1. Regression baseline khai thác trực tiếp các đặc trưng lag (1, 3, 24) và time features nên bám sát biến động ngắn hạn tốt nếu feature engineering đúng. ARIMA có thể hoạt động tốt trong một số trường hợp nhưng phụ thuộc mạnh vào cấu trúc tự tương quan và quyết định sai phân, nên kém linh hoạt hơn cho horizon rất ngắn.
 
 Q2. Mô hình nào ổn hơn khi có spike?
 
 -  Regression baseline ổn hơn ARIMA khi xuất hiện spike PM2.5.
 Phân tích:
 
-	Trên đoạn 1–3 ngày có đỉnh PM2.5 rõ, regression phản ứng nhanh hơn do sử dụng thông tin trễ gần nhất, trong khi ARIMA có xu hướng làm mượt và phản ứng chậm, dẫn đến việc đánh giá thấp biên độ đỉnh. Khi mô hình sai nặng ở một vài thời điểm spike, RMSE tăng mạnh hơn MAE, điều này giải thích vì sao ARIMA thường bị phạt nặng về RMSE trong các giai đoạn có spike.
+Trên đoạn 1–3 ngày có đỉnh PM2.5 rõ, regression phản ứng nhanh hơn do sử dụng thông tin trễ gần nhất, trong khi ARIMA có xu hướng làm mượt và phản ứng chậm, dẫn đến việc đánh giá thấp biên độ đỉnh. Khi mô hình sai nặng ở một vài thời điểm spike, RMSE tăng mạnh hơn MAE, điều này giải thích vì sao ARIMA thường bị phạt nặng về RMSE trong các giai đoạn có spike.
 
 Q3. Nếu triển khai thật, bạn chọn gì và vì sao?
 
 - Chọn regression baseline cho hệ thống cảnh báo sớm.
 Lý do:
 
-	Regression baseline dễ mở rộng khi bổ sung thêm đặc trưng (thời tiết, giao thông), dễ cập nhật và chạy nhanh trong môi trường vận hành thực tế. ARIMA có ưu thế về khả năng giải thích theo (p, d, q) và cung cấp khoảng tin cậy dự báo, nên phù hợp để phân tích xu hướng tổng thể, nhưng không phải lựa chọn tối ưu cho cảnh báo sớm trong điều kiện thời tiết và ô nhiễm biến động mạnh.
+Regression baseline dễ mở rộng khi bổ sung thêm đặc trưng (thời tiết, giao thông), dễ cập nhật và chạy nhanh trong môi trường vận hành thực tế. ARIMA có ưu thế về khả năng giải thích theo (p, d, q) và cung cấp khoảng tin cậy dự báo, nên phù hợp để phân tích xu hướng tổng thể, nhưng không phải lựa chọn tối ưu cho cảnh báo sớm trong điều kiện thời tiết và ô nhiễm biến động mạnh.
