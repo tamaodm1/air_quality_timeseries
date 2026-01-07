@@ -1,24 +1,30 @@
 Chủ đề 1: Regression vs ARIMA – khi nào chọn cái nào?
+<img width="553" height="182" alt="image" src="https://github.com/user-attachments/assets/27db8cd5-7752-42fd-907f-539b9b4d29a4" />
+
 
 Hình 1. PM2.5 toàn giai đoạn (2013–2017)
 Diễn giải:
 Chuỗi PM2.5 biến động rất mạnh trong toàn bộ giai đoạn nghiên cứu, với nhiều đỉnh cao xuất hiện rải rác theo thời gian. Không quan sát thấy xu hướng tăng hoặc giảm dài hạn rõ ràng, cho thấy ô nhiễm không khí không cải thiện ổn định theo năm. Điều này gợi ý rằng PM2.5 chịu ảnh hưởng chủ yếu bởi các yếu tố ngắn hạn như thời tiết và hoạt động con người hơn là xu hướng dài hạn.
+<img width="554" height="182" alt="image" src="https://github.com/user-attachments/assets/8542ed18-eaa3-44fb-b355-1867f3d23c1f" />
 
 Hình 2. PM2.5 zoom 1–2 tháng
 Diễn giải:
 Khi quan sát trong khoảng thời gian ngắn, PM2.5 có thể tăng rất nhanh trong vài giờ hoặc vài ngày, tạo ra các đợt ô nhiễm đột ngột. Các đỉnh PM2.5 có biên độ lớn và xuất hiện không đều, gây khó khăn cho dự báo nếu mô hình phản ứng chậm. Điều này cho thấy dự báo ngắn hạn có vai trò quan trọng trong hệ thống cảnh báo sớm chất lượng không khí.
 
+<img width="554" height="163" alt="image" src="https://github.com/user-attachments/assets/ab4670fb-a766-463e-be4c-2d86773d61fe" />
 
 			          Hình 3. ACF của PM2.5
 Diễn giải:
 Hệ số tự tương quan giảm chậm theo độ trễ, cho thấy PM2.5 có mối liên hệ mạnh với các giá trị trong quá khứ gần. Điều này chứng tỏ chuỗi không phải là nhiễu ngẫu nhiên mà có cấu trúc phụ thuộc theo thời gian rõ ràng. Kết quả này giải thích vì sao các đặc trưng độ trễ có giá trị cao trong các mô hình dự báo.
 
+<img width="553" height="220" alt="image" src="https://github.com/user-attachments/assets/17d54500-9111-4947-9e04-bdf9b117d2f1" />
 
 				Hình 4. PACF của PM2.5
 Diễn giải:
 
 PACF thể hiện các đỉnh đáng kể ở những độ trễ nhỏ, đặc biệt ở độ trễ đầu tiên. Điều này cho thấy PM2.5 hiện tại chịu ảnh hưởng trực tiếp mạnh từ các giá trị gần nhất trong quá khứ. Quan sát này phù hợp với việc lựa chọn các độ trễ nhỏ trong mô hình ARIMA và regression.
 ARIMA (Forecast vs Actual)
+<img width="553" height="220" alt="image" src="https://github.com/user-attachments/assets/0b060c26-4c28-4f83-b537-a1dba5922b7f" />
 
 		    Hình 5. Forecast vs Actual của mô hình ARIMA
 Diễn giải:
