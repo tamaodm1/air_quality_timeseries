@@ -1,254 +1,42 @@
-# Beijing Multi-Site Air Quality — Classification + Regression + Time Series (ARIMA)
+Chủ đề 1: Regression vs ARIMA – khi nào chọn cái nào?
 
-Phân tích dữ liệu chất lượng không khí **Beijing Multi-Site Air Quality (12 stations)** để xây dựng một pipeline hoàn chỉnh gồm:
+Hình 1. PM2.5 toàn giai đoạn (2013–2017)
+Diễn giải:
+Chuỗi PM2.5 biến động rất mạnh trong toàn bộ giai đoạn nghiên cứu, với nhiều đỉnh cao xuất hiện rải rác theo thời gian. Không quan sát thấy xu hướng tăng hoặc giảm dài hạn rõ ràng, cho thấy ô nhiễm không khí không cải thiện ổn định theo năm. Điều này gợi ý rằng PM2.5 chịu ảnh hưởng chủ yếu bởi các yếu tố ngắn hạn như thời tiết và hoạt động con người hơn là xu hướng dài hạn.
 
-- **Phân lớp mức độ ô nhiễm (AQI level)**: tạo nhãn từ **PM2.5 rolling 24h**, nhưng **KHÔNG dùng PM2.5** trong tập đặc trưng đầu vào (tránh leakage).
-- **Hồi quy (Regression)**: dự đoán **PM2.5 tương lai** theo horizon (ví dụ t+1, t+24…).
-- **Chuỗi thời gian (Time Series)**: phân tích đặc điểm dữ liệu time series “đúng bài giảng” và dự báo **chỉ dùng ARIMA** (statsmodels).
-
-Project triển khai theo pipeline notebook → module hoá trong `src/` → tự động chạy bằng **Papermill** để phục vụ giảng dạy & demo ra quyết định chọn mô hình.
-
----
-
-## Features
-
-### 1) Classification (No PM2.5 in features)
-- Load & merge dữ liệu từ nhiều trạm
-- Làm sạch dữ liệu: missing, kiểu thời gian, chuẩn hoá numeric/object
-- Tạo nhãn **AQI class** từ `pm25_24h` (rolling mean 24h)
-- **Không dùng PM2.5 / pm25_24h làm feature**
-- Đánh giá: Accuracy, Precision/Recall/F1, Confusion Matrix
-- Lưu artifacts: metrics + prediction sample
-
-### 2) Regression (Supervised)
-- Tạo bài toán hồi quy theo time-based split (tránh leakage)
-- Feature engineering cho hồi quy:
-  - time features (hour/day/month/…)
-  - lag features (theo cấu hình)
-- Dự đoán `PM2.5(t + horizon)`
-- Đánh giá: RMSE, MAE, R2
-- Lưu artifacts: model + metrics + prediction sample
-
-### 3) Time Series Forecasting (ARIMA only)
-- Xây dựng chuỗi đơn biến theo **1 trạm** (univariate PM2.5)
-- Phân tích đặc điểm dữ liệu chuỗi thời gian “đúng bài giảng”:
-  - missingness & resampling
-  - rolling mean/std
-  - stationarity tests (ADF/KPSS)
-  - ACF/PACF để định hướng p,q
-  - quyết định d (sai phân) theo kiểm định + quan sát
-- Fit & chọn ARIMA theo AIC/BIC (grid nhỏ)
-- Dự báo + lưu artifacts: summary, predictions, model
-
----
-
-## Project Structure
-
-```text
-air_quality_timeseries/
-├── data/
-│   ├── raw/
-│   │   └── PRSA2017_Data_20130301-20170228.zip
-│   └── processed/
-│       ├── cleaned.parquet
-│       ├── dataset_for_clf.parquet
-│       ├── metrics.json
-│       ├── predictions_sample.csv
-│       ├── dataset_for_regression.parquet
-│       ├── regressor.joblib
-│       ├── regression_metrics.json
-│       ├── regression_predictions_sample.csv
-│       ├── arima_pm25_summary.json
-│       ├── arima_pm25_predictions.csv
-│       └── arima_pm25_model.pkl
-│
-├── notebooks/
-│   ├── preprocessing_and_eda.ipynb
-│   ├── feature_preparation.ipynb
-│   ├── classification_modelling.ipynb
-│   ├── regression_modelling.ipynb
-│   ├── arima_forecasting.ipynb
-│   └── runs/
-│       ├── preprocessing_and_eda_run.ipynb
-│       ├── feature_preparation_run.ipynb
-│       ├── classification_modelling_run.ipynb
-│       ├── regression_modelling_run.ipynb
-│       └── arima_forecasting_run.ipynb
-│
-├── src/
-│   ├── classification_library.py
-│   ├── regression_library.py
-│   ├── timeseries_library.py
-│   └── __init__.py
-│
-├── run_papermill.py
-├── requirements.txt
-└── README.md
-
-```
-
-## Installation
-
-```bash
-git clone <your_repo_url>
-cd air_quality_timeseries
-pip install -r requirements.txt
-```
-
-## Data Preparation
-
-Đặt file gốc vào:
-```
-
-```bash
-data/raw/PRSA2017_Data_20130301-20170228.zip
-```
-Hoặc tải dataset Beijing Multi-Site Air Quality Data (UCI) và đặt các file trạm vào:
-
-```bash 
-data/raw/
-```
-Ví dụ
-
-```bash
-data/raw/station_01.csv
-data/raw/station_02.csv
-...
-data/raw/station_12.csv
-```
-
-File output sẽ được sinh tự động vào:
-```bash
-data/processed/
-```
+Hình 2. PM2.5 zoom 1–2 tháng
+Diễn giải:
+Khi quan sát trong khoảng thời gian ngắn, PM2.5 có thể tăng rất nhanh trong vài giờ hoặc vài ngày, tạo ra các đợt ô nhiễm đột ngột. Các đỉnh PM2.5 có biên độ lớn và xuất hiện không đều, gây khó khăn cho dự báo nếu mô hình phản ứng chậm. Điều này cho thấy dự báo ngắn hạn có vai trò quan trọng trong hệ thống cảnh báo sớm chất lượng không khí.
 
 
-
-Run Pipeline (Recommended)
-Chạy toàn bộ phân tích chỉ với 1 lệnh:
-
-```bash
-python run_papermill.py
-```
-Kết quả sinh ra:
-
-```bash
-data/processed/cleaned.parquet
-data/processed/dataset_for_clf.parquet
-data/processed/metrics.json
-data/processed/predictions_sample.csv
-
-data/processed/dataset_for_regression.parquet
-data/processed/regressor.joblib
-data/processed/regression_metrics.json
-data/processed/regression_predictions_sample.csv
-
-data/processed/arima_pm25_summary.json
-data/processed/arima_pm25_predictions.csv
-data/processed/arima_pm25_model.pkl
-
-notebooks/runs/arima_forecasting_run.ipynb
-```
-
-### Changing Parameters
-Các tham số có thể chỉnh trong run_papermill.py:
-
-#### Preprocessing/EDA
-```python
-USE_UCIMLREPO = False
-RAW_ZIP_PATH = "data/raw/PRSA2017_Data_20130301-20170228.zip"
-LAG_HOURS = [1, 3, 24]
-```
-
-#### Classification
-```python
-CUTOFF = "2017-01-01"   # time-based split
-# (PM2.5 bị loại khỏi features trong library để tránh leakage)
-```
-
-#### Regression
-```python
-HORIZON = 1                       # dự đoán PM2.5(t + HORIZON)
-TARGET_COL = "PM2.5"
-OUTPUT_REG_DATASET_PATH = "data/processed/dataset_for_regression.parquet"
-CUTOFF = "2017-01-01"
-MODEL_OUT = "regressor.joblib"
-METRICS_OUT = "regression_metrics.json"
-PRED_SAMPLE_OUT = "regression_predictions_sample.csv"
-```
-
-#### ARIMA 
-```
-STATION = "Aotizhongxin"
-VALUE_COL = "PM2.5"
-CUTOFF = "2017-01-01"
-
-P_MAX = 3
-Q_MAX = 3
-D_MAX = 2
-IC = "aic"                         # hoặc "bic"
-ARTIFACTS_PREFIX = "arima_pm25"
-```
+			          Hình 3. ACF của PM2.5
+Diễn giải:
+Hệ số tự tương quan giảm chậm theo độ trễ, cho thấy PM2.5 có mối liên hệ mạnh với các giá trị trong quá khứ gần. Điều này chứng tỏ chuỗi không phải là nhiễu ngẫu nhiên mà có cấu trúc phụ thuộc theo thời gian rõ ràng. Kết quả này giải thích vì sao các đặc trưng độ trễ có giá trị cao trong các mô hình dự báo.
 
 
-Hoặc sửa trong cell PARAMETERS của mỗi notebook để chạy với cấu hình khác nhau.
+				Hình 4. PACF của PM2.5
+Diễn giải:
 
-### Visualization & Results
+PACF thể hiện các đỉnh đáng kể ở những độ trễ nhỏ, đặc biệt ở độ trễ đầu tiên. Điều này cho thấy PM2.5 hiện tại chịu ảnh hưởng trực tiếp mạnh từ các giá trị gần nhất trong quá khứ. Quan sát này phù hợp với việc lựa chọn các độ trễ nhỏ trong mô hình ARIMA và regression.
+ARIMA (Forecast vs Actual)
 
-Notebook preprocessing_and_eda.ipynb:
+		    Hình 5. Forecast vs Actual của mô hình ARIMA
+Diễn giải:
+Dự báo của ARIMA bám được xu hướng chung của PM2.5 nhưng có xu hướng làm mượt chuỗi. Trong các giai đoạn PM2.5 tăng đột ngột, mô hình phản ứng chậm và thường đánh giá thấp biên độ đỉnh. Khoảng dự báo rộng hơn trong các thời điểm biến động mạnh phản ánh mức độ bất định cao của chuỗi PM2.5.
+Q1. Mô hình nào tốt hơn cho horizon = 1?
+- Regression baseline tốt hơn ARIMA cho horizon = 1.
+Dẫn chứng bằng số liệu :
+Regression baseline: RMSE ≈ 25.33, MAE ≈ 12.32, R² ≈ 0.95
+ARIMA (1,0,3): sai số cao hơn regression (thể hiện trên Forecast vs Actual)
+Giải thích :
+	Dự báo rất ngắn hạn của PM2.5 bị chi phối mạnh bởi độ trễ gần nhất, đặc biệt là PM2.5_lag1. Regression baseline khai thác trực tiếp các đặc trưng lag (1, 3, 24) và time features nên bám sát biến động ngắn hạn tốt nếu feature engineering đúng. ARIMA có thể hoạt động tốt trong một số trường hợp nhưng phụ thuộc mạnh vào cấu trúc tự tương quan và quyết định sai phân, nên kém linh hoạt hơn cho horizon rất ngắn.
 
-  kiểm tra missingness, phân phối, xu hướng theo thời gian
+Q2. Mô hình nào ổn hơn khi có spike?
 
-  gợi ý seasonality (24h, tuần) để định hướng mô hình
-
-Notebook regression_modelling.ipynb:
-
-  dự đoán PM2.5(t+h), đánh giá RMSE/MAE/R2, minh hoạ leakage và lý do time-split
-
-Notebook arima_forecasting.ipynb:
-
-  ADF/KPSS, rolling mean/std, ACF/PACF
-
-  chọn (p,d,q) theo AIC/BIC và dự báo ARIMA
-
-Bạn có thể export notebook chạy ra HTML:
-
-```bash
-jupyter nbconvert notebooks/runs/03_classification_modelling_run.ipynb --to html
-```
-
-## Ứng dụng thực tế 
-
-Thiết kế bài giảng “end-to-end”:
-
-  phân lớp mức độ ô nhiễm (classification) + chống leakage
-
-  hồi quy dự đoán chỉ số PM2.5 tương lai (regression)
-
-  phân tích chuỗi thời gian và quyết định dùng ARIMA (time series)
-
-Demo ra quyết định mô hình dựa trên:
-
-  stationarity (ADF/KPSS), ACF/PACF
-
-  tiêu chí IC (AIC/BIC) và kiểm tra sai số dự báo
-
-### Tech Stack
-
-| Công nghệ | Mục đích |
-|----------|----------|
-| Python | Ngôn ngữ chính |
-| Pandas | Xử lý dữ liệu transaction |
-| Scikit-learn | Modelling & metrics |
-| Statsmodels  | ARIMA               |
-| Papermill | Chạy pipeline notebook tự động |
-| Matplotlib & Seaborn | Visualization biểu đồ tĩnh |
-| Plotly | Dashboard / biểu đồ tương tác |
-| Jupyter Notebook | Môi trường notebook |
-
-### Author
-Project được thực hiện bởi:
-Trang Le
-
-### License
-MIT — sử dụng tự do cho nghiên cứu, học thuật và ứng dụng nội bộ.
+-  Regression baseline ổn hơn ARIMA khi xuất hiện spike PM2.5.
+Phân tích:
+	Trên đoạn 1–3 ngày có đỉnh PM2.5 rõ, regression phản ứng nhanh hơn do sử dụng thông tin trễ gần nhất, trong khi ARIMA có xu hướng làm mượt và phản ứng chậm, dẫn đến việc đánh giá thấp biên độ đỉnh. Khi mô hình sai nặng ở một vài thời điểm spike, RMSE tăng mạnh hơn MAE, điều này giải thích vì sao ARIMA thường bị phạt nặng về RMSE trong các giai đoạn có spike.
+Q3. Nếu triển khai thật, bạn chọn gì và vì sao?
+- Chọn regression baseline cho hệ thống cảnh báo sớm.
+Lý do:
+	Regression baseline dễ mở rộng khi bổ sung thêm đặc trưng (thời tiết, giao thông), dễ cập nhật và chạy nhanh trong môi trường vận hành thực tế. ARIMA có ưu thế về khả năng giải thích theo (p, d, q) và cung cấp khoảng tin cậy dự báo, nên phù hợp để phân tích xu hướng tổng thể, nhưng không phải lựa chọn tối ưu cho cảnh báo sớm trong điều kiện thời tiết và ô nhiễm biến động mạnh.
