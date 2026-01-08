@@ -25,8 +25,6 @@ var/
 
 # Data files - uncomment if you want to ignore data files
 # data/raw/
-data/processed/
-
 # Model files - uncomment if you want to ignore model files
 # models/
 
@@ -42,5 +40,13 @@ ENV/
 *.swo
 
 # data artifacts
+# ignore model files
 *.pkl
+*.joblib
+
+# allow processed data
+!data/processed/*.csv
+!data/processed/*.json
+!data/processed/*.parquet
+
 
